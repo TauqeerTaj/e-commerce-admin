@@ -31,15 +31,26 @@ export async function POST(request: NextRequest) {
 
     // PRODUCTION vs DEVELOPMENT handling
     if (process.env.NODE_ENV === "production") {
-      // In production, use cloud storage
-      // This is where you'd integrate with AWS S3, Cloudinary, Vercel Blob, etc.
-      return NextResponse.json(
-        {
-          error:
-            "Production storage not configured. Please set up cloud storage.",
-        },
-        { status: 500 }
-      );
+      // Import and use production route logic
+      try {
+        const { put } = await import("@vercel/blob");
+
+        // Upload to Vercel Blob storage
+        const blob = await put(file.name, file, {
+          access: "public",
+        });
+
+        return NextResponse.json({
+          message: "File uploaded successfully",
+          imageUrl: blob.url,
+        });
+      } catch (error) {
+        console.error("Production upload error:", error);
+        return NextResponse.json(
+          { error: "Failed to upload to production storage" },
+          { status: 500 }
+        );
+      }
     } else {
       // Development: Save to local directory
       // Use absolute path to ensure it works regardless of upload source
