@@ -97,7 +97,7 @@ export default function AdminLogin() {
           </div>
 
           <div className="text-center text-sm text-gray-600">
-            <p>Demo credentials:</p>
+            <p>Demo credentials For Admin Panel:</p>
             <p>Email: admin@ecommerce.com</p>
             <p>Password: admin123</p>
           </div>
