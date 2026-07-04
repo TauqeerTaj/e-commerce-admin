@@ -53,10 +53,27 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Development: Save to local directory
-      // Use absolute path to ensure it works regardless of upload source
+      // Save to both admin and client app public folders so both can access
+      const adminAppPath = "D:\\e-commerce-admin\\public\\uploads";
       const clientAppPath = "D:\\e-commerce\\public\\uploads";
 
       try {
+        // Save to admin app
+        await writeFile(join(adminAppPath, file.name), buffer);
+      } catch {
+        try {
+          await mkdir(adminAppPath, { recursive: true });
+          await writeFile(join(adminAppPath, file.name), buffer);
+        } catch (mkdirError) {
+          console.error(
+            "Error creating admin directory or writing file:",
+            mkdirError
+          );
+        }
+      }
+
+      try {
+        // Save to client app
         await writeFile(join(clientAppPath, file.name), buffer);
       } catch {
         try {
@@ -64,16 +81,14 @@ export async function POST(request: NextRequest) {
           await writeFile(join(clientAppPath, file.name), buffer);
         } catch (mkdirError) {
           console.error(
-            "Error creating directory or writing file:",
+            "Error creating client directory or writing file:",
             mkdirError
           );
-          throw mkdirError;
         }
       }
 
-      // Use environment variable for base URL
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      // Use client app URL for user-side access
+      const baseUrl = "http://localhost:3000";
       const imageUrl = `${baseUrl}/uploads/${file.name}`;
 
       return NextResponse.json({
