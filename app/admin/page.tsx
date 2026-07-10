@@ -74,6 +74,19 @@ export default function AdminDashboard() {
                 </p>
               </Link>
 
+              <Link
+                href="/admin/flash-sales"
+                className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              >
+                <div className="text-3xl mb-4">⚡</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Flash Sales
+                </h3>
+                <p className="text-gray-600">
+                  Manage flash sale products and discounts
+                </p>
+              </Link>
+
               <div className="bg-white p-6 rounded-lg shadow opacity-50">
                 <div className="text-3xl mb-4">📦</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
