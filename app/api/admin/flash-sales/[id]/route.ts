@@ -9,6 +9,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { name, imageUrl, price, originalPrice, discount, order, active, startTime, endTime } = body;
 
@@ -30,7 +31,7 @@ export async function PUT(
 
     const result = await db
       .collection("flashsales")
-      .updateOne({ _id: new ObjectId(params.id) }, { $set: updatedFlashSale });
+      .updateOne({ _id: new ObjectId(id) }, { $set: updatedFlashSale });
 
     if (result.matchedCount === 0) {
       return NextResponse.json(
@@ -39,7 +40,7 @@ export async function PUT(
       );
     }
 
-    return NextResponse.json({ ...updatedFlashSale, _id: params.id });
+    return NextResponse.json({ ...updatedFlashSale, _id: id });
   } catch (error) {
     console.error("Error updating flash sale:", error);
     return NextResponse.json(
@@ -56,12 +57,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     await client.connect();
     const db = client.db("ecommerce");
 
     const result = await db
       .collection("flashsales")
-      .deleteOne({ _id: new ObjectId(params.id) });
+      .deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
       return NextResponse.json(
