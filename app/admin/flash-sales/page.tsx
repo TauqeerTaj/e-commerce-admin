@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import ImageUpload from "@/components/admin/ImageUpload";
+import FlashSaleForm from "@/components/admin/FlashSaleForm";
+import FlashSaleTime from "@/components/admin/FlashSaleTime";
 
 interface FlashSale {
   _id: string;
@@ -27,6 +28,7 @@ export default function FlashSalesManagement() {
   const [flashSales, setFlashSales] = useState<FlashSale[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showTimeForm, setShowTimeForm] = useState(false);
   const [editingFlashSale, setEditingFlashSale] = useState<FlashSale | null>(null);
 
   useEffect(() => {
@@ -76,6 +78,10 @@ export default function FlashSalesManagement() {
     setEditingFlashSale(null);
   };
 
+  const handleTimeFormClose = () => {
+    setShowTimeForm(false);
+  };
+
   const handleFormSuccess = () => {
     fetchFlashSales();
     handleFormClose();
@@ -122,14 +128,28 @@ export default function FlashSalesManagement() {
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-900">Manage Flash Sales</h2>
+            <div>
+              <button
+              onClick={() => setShowTimeForm(true)}
+              className="bg-indigo-600 text-white px-4 py-2 mr-4 rounded-md hover:bg-indigo-700"
+            >
+              Add Flash Sale Time
+            </button>
             <button
               onClick={() => setShowForm(true)}
               className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
             >
               Add New Flash Sale
             </button>
+            </div>
           </div>
-
+          {showTimeForm && (
+            <div className="mb-8">
+              <FlashSaleTime
+                onCancel={handleTimeFormClose}
+              />
+            </div>
+          )}
           {showForm && (
             <div className="mb-8">
               <FlashSaleForm
@@ -193,197 +213,6 @@ export default function FlashSalesManagement() {
           </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-function FlashSaleForm({
-  flashSale,
-  onSuccess,
-  onCancel,
-}: {
-  flashSale: FlashSale | null;
-  onSuccess: () => void;
-  onCancel: () => void;
-}) {
-  const [formData, setFormData] = useState({
-    name: flashSale?.name || "",
-    imageUrl: flashSale?.imageUrl || "",
-    price: flashSale?.price || 0,
-    originalPrice: flashSale?.originalPrice || 0,
-    discount: flashSale?.discount || 0,
-    order: flashSale?.order || 0,
-    active: flashSale?.active ?? true,
-    startTime: flashSale?.startTime || "",
-    endTime: flashSale?.endTime || "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const url = flashSale ? `/api/admin/flash-sales/${flashSale._id}` : "/api/admin/flash-sales";
-      const method = flashSale ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        onSuccess();
-      } else {
-        setError("Failed to save flash sale");
-      }
-    } catch {
-      setError("Failed to save flash sale");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
-        {flashSale ? "Edit Flash Sale" : "Add New Flash Sale"}
-      </h3>
-
-      {error && <div className="text-red-600 text-sm mb-4">{error}</div>}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Product Name
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          />
-        </div>
-
-        <ImageUpload
-          onImageUpload={(imageUrl) => setFormData({ ...formData, imageUrl })}
-          currentImage={formData.imageUrl}
-        />
-
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Sale Price
-            </label>
-            <input
-              type="number"
-              required
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Original Price
-            </label>
-            <input
-              type="number"
-              required
-              value={formData.originalPrice}
-              onChange={(e) => setFormData({ ...formData, originalPrice: parseFloat(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Discount (%)
-            </label>
-            <input
-              type="number"
-              required
-              value={formData.discount}
-              onChange={(e) => setFormData({ ...formData, discount: parseFloat(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Order
-          </label>
-          <input
-            type="number"
-            value={formData.order}
-            onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Start Time
-            </label>
-            <input
-              type="datetime-local"
-              value={formData.startTime}
-              onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              End Time
-            </label>
-            <input
-              type="datetime-local"
-              value={formData.endTime}
-              onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.active}
-              onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-              className="mr-2"
-            />
-            <span className="text-sm font-medium text-gray-700">Active</span>
-          </label>
-        </div>
-
-        <div className="flex space-x-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : flashSale ? "Update" : "Create"}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
     </div>
   );
 }
