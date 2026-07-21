@@ -1,19 +1,23 @@
 "use client";
 
 import ImageUpload from "@/components/admin/ImageUpload";
+import MultiImageUpload from "@/components/admin/MultiImageUpload";
 import { useState } from "react";
 
 interface FlashSale {
   _id: string;
   name: string;
   imageUrl: string;
+  images: string[];
   price: number;
   originalPrice: number;
   discount: number;
   order: number;
   active: boolean;
-  startTime: string;
-  endTime: string;
+  description: string;
+  colors: { name: string; hex: string }[];
+  sizes: string[];
+  category: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,13 +34,16 @@ function FlashSaleForm({
   const [formData, setFormData] = useState({
     name: flashSale?.name || "",
     imageUrl: flashSale?.imageUrl || "",
+    images: flashSale?.images || [],
     price: flashSale?.price || 0,
     originalPrice: flashSale?.originalPrice || 0,
     discount: flashSale?.discount || 0,
     order: flashSale?.order || 0,
     active: flashSale?.active ?? true,
-    startTime: flashSale?.startTime || "",
-    endTime: flashSale?.endTime || "",
+    description: flashSale?.description || "",
+    colors: flashSale?.colors || [],
+    sizes: flashSale?.sizes || [],
+    category: flashSale?.category || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -92,10 +99,112 @@ function FlashSaleForm({
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Category
+          </label>
+          <select
+            required
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+          >
+            <option value="">Select a category</option>
+            <option value="Electronics">Phones</option>
+            <option value="Clothing">Computers</option>
+            <option value="Home & Garden">Smart Watches</option>
+            <option value="Sports">Camera</option>
+            <option value="Books">HeadPhones</option>
+            <option value="Toys">Gaming</option>
+          </select>
+        </div>
+
         <ImageUpload
           onImageUpload={(imageUrl) => setFormData({ ...formData, imageUrl })}
           currentImage={formData.imageUrl}
         />
+
+        <MultiImageUpload
+          onImagesUpload={(images) => setFormData({ ...formData, images })}
+          currentImages={formData.images}
+        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Description
+          </label>
+          <textarea
+            required
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Colors
+          </label>
+          <div className="mt-2 space-y-2">
+            {formData.colors.map((color, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={color.name}
+                  onChange={(e) => {
+                    const newColors = [...formData.colors];
+                    newColors[idx] = { ...newColors[idx], name: e.target.value };
+                    setFormData({ ...formData, colors: newColors });
+                  }}
+                  className="flex-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  placeholder="Color name"
+                />
+                <input
+                  type="text"
+                  value={color.hex}
+                  onChange={(e) => {
+                    const newColors = [...formData.colors];
+                    newColors[idx] = { ...newColors[idx], hex: e.target.value };
+                    setFormData({ ...formData, colors: newColors });
+                  }}
+                  className="w-24 block border border-gray-300 rounded-md px-3 py-2"
+                  placeholder="#Hex"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newColors = formData.colors.filter((_, i) => i !== idx);
+                    setFormData({ ...formData, colors: newColors });
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, colors: [...formData.colors, { name: '', hex: '' }] })}
+              className="text-sm text-indigo-600 hover:text-indigo-800"
+            >
+              + Add Color
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Sizes (comma separated)
+          </label>
+          <input
+            type="text"
+            value={formData.sizes.join(", ")}
+            onChange={(e) => setFormData({ ...formData, sizes: e.target.value.split(",").map(s => s.trim()) })}
+            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+            placeholder="S, M, L, XL"
+          />
+        </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>

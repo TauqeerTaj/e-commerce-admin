@@ -28,9 +28,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, imageUrl, price, originalPrice, discount, order, active, startTime, endTime } = body;
+    const { name, imageUrl, images, price, originalPrice, discount, order, active, description, colors, sizes, category } = body;
 
-    if (!name || !imageUrl || !price || !originalPrice || !discount) {
+    if (!name || !imageUrl || !price || !originalPrice || !discount || !category) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -43,13 +43,16 @@ export async function POST(request: NextRequest) {
     const newFlashSale = {
       name,
       imageUrl,
+      images: images || [],
       price,
       originalPrice,
       discount,
       order: order || 0,
       active: active !== undefined ? active : true,
-      startTime: startTime || new Date().toISOString(),
-      endTime: endTime || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      description: description || "",
+      colors: colors || [],
+      sizes: sizes || [],
+      category,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
