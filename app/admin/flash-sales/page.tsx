@@ -10,14 +10,19 @@ import FlashSaleTime from "@/components/admin/FlashSaleTime";
 interface FlashSale {
   _id: string;
   name: string;
-  imageUrl: string;
   price: number;
   originalPrice: number;
+  description: string;
   discount: number;
-  order: number;
+  images: string[];
+  imageUrl: string;
+  colors: { name: string; hex: string }[];
+  sizes: string[];
   active: boolean;
-  startTime: string;
-  endTime: string;
+  order: number;
+  reviewCount: number;
+  rating: number;
+  category: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -130,17 +135,17 @@ export default function FlashSalesManagement() {
             <h2 className="text-2xl font-bold text-gray-900">Manage Flash Sales</h2>
             <div>
               <button
-              onClick={() => setShowTimeForm(true)}
-              className="bg-indigo-600 text-white px-4 py-2 mr-4 rounded-md hover:bg-indigo-700"
-            >
-              Add Flash Sale Time
-            </button>
-            <button
-              onClick={() => setShowForm(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-            >
-              Add New Flash Sale
-            </button>
+                onClick={() => setShowTimeForm(true)}
+                className="bg-indigo-600 text-white px-4 py-2 mr-4 rounded-md hover:bg-indigo-700"
+              >
+                Add Flash Sale Time
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+              >
+                Add New Flash Sale
+              </button>
             </div>
           </div>
           {showTimeForm && (
@@ -166,7 +171,7 @@ export default function FlashSalesManagement() {
                 <li className="p-6 text-center text-gray-500">
                   No flash sales found. Create your first flash sale!
                 </li>
-              : flashSales.map((flashSale) => (
+                : flashSales.map((flashSale) => (
                   <li key={flashSale._id} className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
