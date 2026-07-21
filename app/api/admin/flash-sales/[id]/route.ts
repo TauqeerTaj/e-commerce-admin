@@ -11,7 +11,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, imageUrl, price, originalPrice, discount, order, active, startTime, endTime } = body;
+    const { name, imageUrl, images, price, originalPrice, discount, order, active, description, colors, sizes, category } = body;
 
     await client.connect();
     const db = client.db("ecommerce");
@@ -19,13 +19,16 @@ export async function PUT(
     const updatedFlashSale = {
       name,
       imageUrl,
+      images: images || [],
       price,
       originalPrice,
       discount,
       order: order || 0,
       active: active !== undefined ? active : true,
-      startTime,
-      endTime,
+      description: description || "",
+      colors: colors || [],
+      sizes: sizes || [],
+      category,
       updatedAt: new Date(),
     };
 
